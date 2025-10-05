@@ -363,14 +363,25 @@ async function downloadAllXMLs() {
             
             // Get ISBN for filename (first column should be isbn)
             const isbnIndex = mappedHeaders.indexOf('isbn');
-            let filename = `record_${String(index + 1).padStart(4, '0')}.xml`;
+            let baseFilename = `record_${String(index + 1).padStart(4, '0')}`;
             
             if (isbnIndex !== -1 && row[isbnIndex]) {
                 const isbn = String(row[isbnIndex]).replace(/[^a-zA-Z0-9]/g, '');
-                filename = `${isbn}.xml`;
+                baseFilename = isbn;
             }
             
-            zip.file(filename, xml);
+            // Create _t and _c files for every record
+            zip.file(`${baseFilename}_t.xml`, xml);
+            zip.file(`${baseFilename}_c.xml`, xml);
+            
+            // Create _jkt file if jacket field is "Y"
+            const jacketIndex = mappedHeaders.indexOf('jacket');
+            if (jacketIndex !== -1 && row[jacketIndex]) {
+                const jacketValue = String(row[jacketIndex]).toUpperCase();
+                if (jacketValue === 'Y' || jacketValue === 'YES') {
+                    zip.file(`${baseFilename}_jkt.xml`, xml);
+                }
+            }
         });
         
         updateProcessing('Generating ZIP archive...');
@@ -388,7 +399,18 @@ async function downloadAllXMLs() {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
         
-        showStatus('success', `Successfully downloaded ${workbookData.length} XML files as ZIP`);
+        // Count jacket files
+        const jacketCount = workbookData.filter((row, idx) => {
+            const jacketIndex = mappedHeaders.indexOf('jacket');
+            if (jacketIndex !== -1 && row[jacketIndex]) {
+                const jacketValue = String(row[jacketIndex]).toUpperCase();
+                return jacketValue === 'Y' || jacketValue === 'YES';
+            }
+            return false;
+        }).length;
+        
+        const totalFiles = (workbookData.length * 2) + jacketCount;
+        showStatus('success', `Successfully downloaded ${totalFiles} XML files (${workbookData.length} records: ${workbookData.length}_t, ${workbookData.length}_c, ${jacketCount}_jkt) as ZIP`);
         hideProcessing();
         
     } catch (error) {
