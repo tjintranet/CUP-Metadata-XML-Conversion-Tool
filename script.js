@@ -32,6 +32,7 @@ const COLUMN_ORDER = [
     "extent",
     "spine",
     "paper",
+    "gsm",
     "colour",
     "quality",
     "bleed",
@@ -125,9 +126,9 @@ async function handleFileUpload(event) {
             if (index !== -1) {
                 orderedHeaders.push(orderedCol);
                 orderedIndices.push(index);
-            } else if (orderedCol === 'spine') {
-                // Add spine column even if not in original data
-                orderedHeaders.push('spine');
+            } else if (orderedCol === 'spine' || orderedCol === 'gsm') {
+                // Add spine and gsm columns even if not in original data
+                orderedHeaders.push(orderedCol);
                 orderedIndices.push(-1); // -1 indicates calculated field
             }
         });
@@ -145,7 +146,7 @@ async function handleFileUpload(event) {
         console.log('Original headers:', headers);
         console.log('Mapped headers:', mappedHeaders);
         
-        // Reorder data columns to match new header order and calculate spine
+        // Reorder data columns to match new header order and calculate spine and gsm
         workbookData = jsonData.slice(1).filter(row => 
             row.some(cell => cell !== null && cell !== undefined && cell !== '')
         ).map(row => {
@@ -156,6 +157,7 @@ async function handleFileUpload(event) {
             const paperIndex = mappedHeaders.indexOf('paper');
             const bindingIndex = mappedHeaders.indexOf('binding_style');
             const spineIndex = mappedHeaders.indexOf('spine');
+            const gsmIndex = mappedHeaders.indexOf('gsm');
             
             if (spineIndex !== -1 && extentIndex !== -1 && paperIndex !== -1 && bindingIndex !== -1) {
                 const extent = parseInt(reorderedRow[extentIndex]) || 0;
@@ -171,6 +173,12 @@ async function handleFileUpload(event) {
                 if (extent > 0 && paperName && bindingStyle) {
                     const spine = calculateSpine(extent, paperName, bindingStyle);
                     reorderedRow[spineIndex] = spine.toString();
+                }
+                
+                // Extract GSM value from paper name
+                if (gsmIndex !== -1 && paperName) {
+                    const gsm = extractGSM(paperName);
+                    reorderedRow[gsmIndex] = gsm;
                 }
             }
             
@@ -425,6 +433,21 @@ function calculateSpine(extent, paperName, bindingStyle) {
     return bindingStyle.toLowerCase() === 'cased' ?
         baseSpineThickness + HARDBACK_SPINE_ADDITION :
         baseSpineThickness;
+}
+
+// Extract GSM value from paper name
+function extractGSM(paperName) {
+    if (!paperName) return '';
+    
+    // First check if it's a known paper type
+    const paperSpec = PAPER_SPECS[paperName];
+    if (paperSpec) {
+        return paperSpec.grammage.toString();
+    }
+    
+    // Otherwise try to extract number followed by 'gsm' (case insensitive)
+    const match = paperName.match(/(\d+)\s*gsm/i);
+    return match ? match[1] : '';
 }
 
 // Utility functions
