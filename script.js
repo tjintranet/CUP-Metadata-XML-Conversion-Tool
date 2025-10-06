@@ -50,7 +50,7 @@ const VALUE_MAPPING = {
     "paper": {
         "Cream 80gsm": "Munken 80 gsm",
         "White 80gsm": "Navigator 80 gsm",
-        "Matte Coated": "LetsGo Silk 90 gsm"
+        "Matte Coated 90gsm": "LetsGo Silk 90 gsm"
     },
     "lamination": {
         "Matte": "Matt"
