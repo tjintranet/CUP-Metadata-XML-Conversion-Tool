@@ -48,9 +48,10 @@ const COLUMN_ORDER = [
 // Value remapping for specific fields
 const VALUE_MAPPING = {
     "paper": {
-        "Cream 80gsm": "Munken 80 gsm",
+        "Cream 80gsm": "CUP MunkenPure 80 gsm",
         "White 80gsm": "Navigator 80 gsm",
-        "Matte Coated 90gsm": "LetsGo Silk 90 gsm"
+        "Matte Coated 90gsm": "Clairjet 90 gsm",
+        "Matte Coated 90gsm": "Magno Matt 90 gsm"
     },
     "lamination": {
         "Matte": "Matt"
@@ -59,9 +60,10 @@ const VALUE_MAPPING = {
 
 // Paper specifications for spine calculation
 const PAPER_SPECS = {
-    "Munken 80 gsm": { grammage: 80, volume: 17.5 },
+    "CUP MunkenPure 80 gsm": { grammage: 80, volume: 13 },
     "Navigator 80 gsm": { grammage: 80, volume: 12.5 },
-    "LetsGo Silk 90 gsm": { grammage: 90, volume: 10 }
+    "Clairjet 90 gsm": { grammage: 90, volume: 10 },
+    "Magno Matt 90 gsm": { grammage: 90, volume: 10 }
 };
 
 // Constants for spine calculation
