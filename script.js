@@ -49,9 +49,9 @@ const COLUMN_ORDER = [
 const VALUE_MAPPING = {
     "paper": {
         "Cream 80gsm": "CUP MunkenPure 80 gsm",
-        "White 80gsm": "Navigator 80 gsm",
-        "Matte Coated 90gsm": "Clairjet 90 gsm",
-        "Matte Coated 90gsm": "Magno Matt 90 gsm"
+        "White 80gsm": "Navigator 80 gsm"
+        // Note: "Matte Coated 90gsm" mapping is conditional on quality option
+        // Handled in applyPaperMapping() function
     },
     "lamination": {
         "Matte": "Matt"
@@ -69,6 +69,28 @@ const PAPER_SPECS = {
 // Constants for spine calculation
 const SPINE_CALCULATION_FACTOR = 20000;
 const HARDBACK_SPINE_ADDITION = 4;
+
+// Apply conditional paper mapping based on quality option
+function applyPaperMapping(paperValue, qualityValue) {
+    // First check basic mapping
+    if (VALUE_MAPPING.paper && VALUE_MAPPING.paper[paperValue]) {
+        return VALUE_MAPPING.paper[paperValue];
+    }
+    
+    // Handle conditional mapping for Matte Coated 90gsm
+    if (paperValue === "Matte Coated 90gsm") {
+        const qualityStr = String(qualityValue).toLowerCase();
+        
+        if (qualityStr.includes("standard")) {
+            return "Clairjet 90 gsm";
+        } else if (qualityStr.includes("premium")) {
+            return "Magno Matt 90 gsm";
+        }
+    }
+    
+    // Return original value if no mapping found
+    return paperValue;
+}
 
 // DOM elements
 const excelFileInput = document.getElementById('excelFile');
@@ -158,6 +180,7 @@ async function handleFileUpload(event) {
             const extentIndex = mappedHeaders.indexOf('extent');
             const paperIndex = mappedHeaders.indexOf('paper');
             const bindingIndex = mappedHeaders.indexOf('binding_style');
+            const qualityIndex = mappedHeaders.indexOf('quality');
             const spineIndex = mappedHeaders.indexOf('spine');
             const gsmIndex = mappedHeaders.indexOf('gsm');
             
@@ -165,10 +188,12 @@ async function handleFileUpload(event) {
                 const extent = parseInt(reorderedRow[extentIndex]) || 0;
                 let paperName = reorderedRow[paperIndex];
                 const bindingStyle = reorderedRow[bindingIndex];
+                const qualityValue = qualityIndex !== -1 ? reorderedRow[qualityIndex] : '';
                 
-                // Apply paper mapping if needed
-                if (VALUE_MAPPING.paper && VALUE_MAPPING.paper[paperName]) {
-                    paperName = VALUE_MAPPING.paper[paperName];
+                // Apply paper mapping with quality consideration
+                if (paperName) {
+                    paperName = applyPaperMapping(paperName, qualityValue);
+                    reorderedRow[paperIndex] = paperName;
                 }
                 
                 // Calculate spine
@@ -343,11 +368,19 @@ function generateXMLForRow(row, index) {
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
     xml += '<record>\n';
     
+    // Get quality value for conditional paper mapping
+    const qualityIndex = mappedHeaders.indexOf('quality');
+    const qualityValue = qualityIndex !== -1 ? row[qualityIndex] : '';
+    
     mappedHeaders.forEach((header, colIndex) => {
         let value = row[colIndex] !== undefined ? row[colIndex] : '';
         
-        // Apply value mapping if exists for this field
-        if (VALUE_MAPPING[header] && VALUE_MAPPING[header][value]) {
+        // Apply conditional paper mapping
+        if (header === 'paper' && value) {
+            value = applyPaperMapping(value, qualityValue);
+        }
+        // Apply other value mappings if exists for this field
+        else if (VALUE_MAPPING[header] && VALUE_MAPPING[header][value]) {
             value = VALUE_MAPPING[header][value];
         }
         
