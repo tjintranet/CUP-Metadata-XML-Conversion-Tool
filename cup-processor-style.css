@@ -1,0 +1,158 @@
+/* CUP Metadata Processor Styles */
+
+/* Converter Tab Styles */
+.processing-indicator {
+    display: none;
+}
+
+/* Validator Tab Styles */
+.processing-spinner {
+    display: none;
+}
+
+.drag-area {
+    min-height: 200px;
+    border: 2px dashed #dee2e6;
+    border-radius: 0.375rem;
+    padding: 2rem;
+    text-align: center;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.drag-area.dragover {
+    background: #e3f2fd;
+    border-color: var(--bs-primary);
+    transform: scale(1.02);
+}
+
+.validation-result {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(10px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+.results-summary {
+    background: #f8f9fa;
+    border-radius: 0.375rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #dee2e6;
+}
+
+.results-container {
+    margin-top: 1.5rem;
+}
+
+.card-header small {
+    display: block;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.error-shake {
+    animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+/* Improve readability of validation results */
+.list-unstyled li {
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    transition: background 0.2s ease;
+}
+
+.list-unstyled li:hover {
+    background: #f8f9fa;
+}
+
+/* Compact card styles */
+.compact-card .card-header {
+    padding: 0.5rem 1rem;
+}
+
+.compact-card .card-body {
+    padding: 0.75rem 1rem;
+}
+
+.compact-list li {
+    padding: 0.25rem 0;
+    margin-bottom: 0;
+}
+
+.compact-list small {
+    font-size: 0.875rem;
+}
+
+/* Make card borders more prominent for pass/fail status */
+.card.border-success {
+    border-width: 2px;
+}
+
+.card.border-danger {
+    border-width: 2px;
+}
+
+/* Button styling improvements */
+.btn-sm {
+    font-size: 0.875rem;
+    padding: 0.25rem 0.75rem;
+}
+
+/* Gap utility for flex items */
+.gap-2 {
+    gap: 0.5rem;
+}
+
+/* Tab content padding override */
+.tab-content {
+    min-height: 400px;
+}
+
+/* Ensure nav tabs are styled properly */
+.nav-tabs {
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 0;
+}
+
+.nav-tabs .nav-link {
+    color: #495057;
+    border: 1px solid transparent;
+    border-top-left-radius: 0.375rem;
+    border-top-right-radius: 0.375rem;
+}
+
+.nav-tabs .nav-link:hover {
+    border-color: #e9ecef #e9ecef #dee2e6;
+    isolation: isolate;
+}
+
+.nav-tabs .nav-link.active {
+    color: #495057;
+    background-color: #fff;
+    border-color: #dee2e6 #dee2e6 #fff;
+}

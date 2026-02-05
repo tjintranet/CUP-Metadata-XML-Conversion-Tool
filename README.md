@@ -1,37 +1,52 @@
-# Excel to XML Batch Converter
+# CUP Metadata Processor
 
-A web-based tool for converting Excel spreadsheets into individual XML files with automatic column mapping, value transformation, and spine size calculation.
+A unified web-based application for converting Excel metadata to XML and validating Cambridge University Press (CUP) book specification XML files.
 
 ## Features
 
-- **Batch Processing**: Convert multiple rows from Excel into individual XML files
+### Excel → XML Converter
+- **Batch Processing**: Convert multiple Excel rows into individual XML files
 - **Automatic Column Mapping**: Maps Excel column headers to standardized XML attribute names
-- **Value Remapping**: Automatically transforms specific values (e.g., paper types, lamination)
+- **Value Remapping**: Automatically transforms specific values (paper types, lamination)
 - **Spine Calculation**: Automatically calculates spine size based on extent, paper type, and binding style
-- **Statistical Summary**: Displays detailed statistics about your data
+- **GSM Extraction**: Extracts paper weight from paper names
 - **ZIP Download**: Packages all XML files into a single ZIP archive
 - **ISBN-based Naming**: XML files are named using ISBN values
+- **Summary Statistics**: View record counts by binding, colour, and quality
 
-## Getting Started
+### XML Validator
+- **Multi-file Upload**: Drag & drop or browse multiple XML files
+- **Real-time Validation**: Instant validation results with visual indicators
+- **8 Comprehensive Checks**: Covers all specification requirements
+- **Summary Reports**: Download validation results as text reports
+- **Copy to Clipboard**: Quick copy of individual validation results
+- **Filter Results**: Toggle to show only failed validations
+- **Compact Interface**: Clean, easy-to-read results display
 
-### Prerequisites
+### Integrated Workflow
+- **Seamless Processing**: Convert Excel → Generate XMLs → Validate → Download
+- **One-Click Validation**: "Validate Generated XMLs" button automatically validates converted files
+- **Tab-based Interface**: Clean separation of conversion and validation workflows
 
-- Modern web browser (Chrome, Firefox, Safari, or Edge)
-- No server or installation required - runs entirely in the browser
+## Installation
 
-### Installation
+1. Download all files to a single directory:
+   - `cup-metadata-processor.html`
+   - `cup-processor-config.js`
+   - `cup-processor-converter.js`
+   - `cup-processor-validator.js`
+   - `cup-processor-app.js`
+   - `cup-processor-style.css`
 
-1. Download both files:
-   - `index.html`
-   - `script.js`
+2. Open `cup-metadata-processor.html` in a modern web browser
 
-2. Place both files in the same directory
-
-3. Open `index.html` in your web browser
+No server or build process required - runs entirely in the browser.
 
 ## Usage
 
-### 1. Prepare Your Excel File
+### Tab 1: Excel → XML Converter
+
+#### 1. Prepare Your Excel File
 
 Your Excel file should have the following columns:
 
@@ -54,49 +69,24 @@ Your Excel file should have the following columns:
 | pod_xml_TJ_WibalinColour | wibalin_colour | Wibalin colour |
 | pod_xml_SetISBN | set_isbn | Set ISBN |
 
-### 2. Upload Excel File
+#### 2. Upload and Process
 
-1. Click the file upload area or drag and drop your Excel file
-2. Supported formats: `.xlsx`, `.xls`
+1. Click "Choose Excel File" and select your .xlsx or .xls file
+2. Review the summary statistics showing record counts
+3. Click "Download All XMLs as ZIP" to download generated files
+4. **Optional**: Click "Validate Generated XMLs" to automatically validate in Tab 2
 
-### 3. Review Summary
+#### 3. Data Transformations
 
-After upload, you'll see a processing summary showing:
-
-- **Total Records**: Number of rows processed
-- **Binding Style**: Count of Cased and Limp bindings
-- **Quality**: Count of Standard and Premium quality
-- **Colour**: Count of Mono and Colour jobs
-- **Jobs with Bleeds**: Count of jobs with bleed
-- **Jackets**: Count of jobs with jackets
-- **Lamination Types**: Breakdown of all lamination types
-
-### 4. Download XML Files
-
-Click the "Download All XMLs as ZIP" button to download a ZIP archive containing all XML files.
-
-## Data Transformations
-
-### Column Name Mapping
-
-All column headers are automatically mapped from the Excel format to clean XML attribute names as shown in the table above.
-
-### Value Remapping
-
-The following values are automatically transformed:
-
-#### Paper Types:
-- `Cream 80gsm` → `Munken 80 gsm`
+**Paper Type Remapping:**
+- `Cream 80gsm` → `CUP MunkenPure 80 gsm`
 - `White 80gsm` → `Navigator 80 gsm`
-- `Matte Coated` → `LetsGo Silk 90 gsm`
+- `Matte Coated 90gsm` → `Clairjet 90 gsm` (Standard) or `Magno Matt 90 gsm` (Premium)
 
-#### Lamination:
+**Lamination Remapping:**
 - `Matte` → `Matt`
 
-### Spine Calculation
-
-The spine size is automatically calculated using the formula:
-
+**Spine Calculation:**
 ```
 Base Spine = (Extent × Grammage × Volume) / 20000
 If Cased binding: Add 4mm
@@ -107,18 +97,12 @@ Final Spine = Base Spine (+ 4 if Cased)
 
 | Paper Type | Grammage | Volume |
 |-----------|----------|--------|
-| Munken 80 gsm | 80 | 17.5 |
+| CUP MunkenPure 80 gsm | 80 | 13 |
 | Navigator 80 gsm | 80 | 12.5 |
-| LetsGo Silk 90 gsm | 90 | 10 |
+| Clairjet 90 gsm | 90 | 10 |
+| Magno Matt 90 gsm | 90 | 10 |
 
-**Example:**
-- 662 pages, Munken 80 gsm, Cased binding
-- Base = (662 × 80 × 17.5) / 20000 = 46mm
-- Final = 46 + 4 = **50mm**
-
-## XML Output Structure
-
-Each row generates an XML file with the following structure:
+#### 4. XML Output Structure
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -129,7 +113,8 @@ Each row generates an XML file with the following structure:
   <trim_width>152</trim_width>
   <extent>662</extent>
   <spine>50</spine>
-  <paper>Munken 80 gsm</paper>
+  <paper>CUP MunkenPure 80 gsm</paper>
+  <gsm>80</gsm>
   <colour>Mono</colour>
   <quality>Standard</quality>
   <bleed>N</bleed>
@@ -143,99 +128,183 @@ Each row generates an XML file with the following structure:
 </record>
 ```
 
-## File Naming
+### Tab 2: XML Validator
 
-XML files are automatically named using the ISBN value:
+#### 1. Upload XML Files
 
-- Format: `[ISBN].xml`
-- Example: `9781234567890.xml`
+- Drag and drop XML files onto the upload area, or
+- Click "Browse Files" to select files from your computer
+- Multiple files can be processed at once
 
-If an ISBN is missing or invalid, files use a numbered format: `record_0001.xml`, `record_0002.xml`, etc.
+#### 2. View Results
 
-## Column Order
+- Each file displays as a card showing pass/fail status
+- **Green border** = all validations passed
+- **Red border** = one or more validations failed
+- Detailed validation messages appear in each card
 
-The XML attributes appear in the following order:
+#### 3. Filter and Export
 
-1. isbn
-2. title
-3. trim_height
-4. trim_width
-5. extent
-6. **spine** (calculated)
-7. paper
-8. colour
-9. quality
-10. bleed
-11. binding_style
-12. lamination
-13. jacket
-14. jacket_lamination
-15. flap_size
-16. wibalin_colour
-17. set_isbn
+- Use "Show failed only" toggle to display only files with errors
+- Click "Download Summary" to export all results as a text file
+- Click clipboard icon on individual cards to copy results
+
+#### 4. Clear and Restart
+
+- Click "Clear Results" to remove all files and start over
+
+## Validation Rules
+
+### Required Fields
+- ISBN, Trim Height, Trim Width, Extent, Paper, Colour, Quality, Binding Style
+
+### Valid Values
+
+**Binding Style:**
+- Cased
+- Limp
+
+**Paper Types:**
+- CUP MunkenPure 80 gsm
+- Navigator 80 gsm
+- Clairjet 90 gsm
+- Magno Matt 90 gsm
+
+**Colour:**
+- Mono
+- Colour
+
+**Quality/Route:**
+- Standard
+- Premium
+
+**Trim Sizes (width x height in mm):**
+- 140x216
+- 152x229
+- 156x234
+- 170x244
+- 189x246
+- 178x254
+- 203x254
+- 216x280
+
+### Paper Compatibility Rules
+
+| Paper Type | Allowed Colour | Allowed Route |
+|-----------|---------------|---------------|
+| CUP MunkenPure 80 gsm | Mono only | Standard only |
+| Navigator 80 gsm | Mono only | Standard only |
+| Clairjet 90 gsm | Colour only | Standard only |
+| Magno Matt 90 gsm | Mono or Colour | Premium only |
+
+## Workflow Example
+
+1. **Convert Excel to XML**
+   - Upload Excel file in Tab 1
+   - Review summary statistics
+   - Click "Validate Generated XMLs"
+
+2. **Automatic Validation**
+   - Application switches to Tab 2
+   - All generated XMLs are automatically validated
+   - Results displayed immediately
+
+3. **Review and Export**
+   - Filter to show only failed validations if needed
+   - Download summary report
+   - Fix any issues in source Excel
+   - Repeat process
+
+## Browser Compatibility
+
+- Chrome 90+ (recommended)
+- Firefox 88+
+- Safari 14+
+- Edge 90+
 
 ## Technical Details
 
 ### Libraries Used
-
 - **SheetJS (xlsx.js)**: Excel file parsing
 - **JSZip**: ZIP file creation
 - **Bootstrap 5**: UI framework
 - **Bootstrap Icons**: Icons
 
-### Browser Compatibility
-
-- Chrome 90+
-- Firefox 88+
-- Safari 14+
-- Edge 90+
-
 ### Security
-
 - All processing happens locally in your browser
 - No data is uploaded to any server
 - No external API calls are made
 
+### File Structure
+- `cup-metadata-processor.html` - Main HTML interface with tab navigation
+- `cup-processor-config.js` - Shared configuration and validation rules
+- `cup-processor-converter.js` - Excel to XML conversion logic
+- `cup-processor-validator.js` - XML validation logic and CUPValidator class
+- `cup-processor-app.js` - Application initialization
+- `cup-processor-style.css` - Custom styling for both modules
+
 ## Troubleshooting
 
-### File Won't Upload
-- Ensure the file is in `.xlsx` or `.xls` format
-- Check that the file isn't corrupted
+### Converter Issues
+
+**File Won't Upload**
+- Ensure file is .xlsx or .xls format
+- Check file isn't corrupted
 - Try with a smaller file first
 
-### Missing Spine Values
-- Ensure the paper type exactly matches one of the supported types
+**Missing Spine Values**
+- Ensure paper type exactly matches supported types
 - Verify extent and binding_style columns have valid data
-- Check that paper names are being properly mapped
+- Check paper names are being properly mapped
 
-### Incorrect Values in XML
-- Verify your Excel column headers match the expected names exactly
-- Check for leading/trailing spaces in data values
+**Incorrect Values in XML**
+- Verify Excel column headers match expected names exactly
+- Check for leading/trailing spaces in data
 - Ensure data types are correct (numbers for extent, trim_height, etc.)
 
-### ZIP Download Fails
+### Validator Issues
+
+**Files Won't Validate**
+- Ensure files are valid XML format
+- Check for proper `<record>` root element
+- Verify all required fields are present
+
+**Validation Always Fails**
+- Check that values exactly match expected formats
+- Verify paper/colour/route combinations are compatible
+- Ensure trim sizes are from the approved list
+
+### General Issues
+
+**ZIP Download Fails**
 - Try with fewer records
-- Check browser console for errors
+- Check browser console (F12) for errors
 - Ensure JavaScript is enabled
+
+**Application Won't Load**
+- Verify all files are in the same directory
+- Check browser console for missing file errors
+- Try a different browser
 
 ## Support
 
 For issues or questions:
-1. Check the browser console (F12) for error messages
-2. Verify your Excel file structure matches the requirements
-3. Test with a small sample file first
-
-## License
-
-This tool is provided as-is for internal use.
+1. Check browser console (F12) for error messages
+2. Verify file structure matches requirements
+3. Test with sample data first
 
 ## Version History
 
 ### Version 1.0
 - Initial release
-- Excel to XML conversion
-- Automatic column mapping
-- Value remapping for paper and lamination
-- Spine size calculation
-- Statistical summary
-- ZIP download functionality
+- Unified Excel-to-XML converter and XML validator
+- Tab-based interface
+- Integrated workflow with automatic validation
+- Shared configuration between modules
+- Complete documentation
+
+---
+
+**Version:** 1.0  
+**Last Updated:** February 2026  
+**Created by:** Colin for Cambridge University Press
