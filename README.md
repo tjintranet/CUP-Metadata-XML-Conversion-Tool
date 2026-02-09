@@ -19,6 +19,7 @@ A unified web-based application for converting Excel metadata to XML and validat
 - **Real-time Validation**: Instant validation results with visual indicators
 - **8 Comprehensive Checks**: Covers all specification requirements
 - **Summary Reports**: Download validation results as text reports
+- **Failed-Only Reports**: Download summary of only failed validations
 - **Copy to Clipboard**: Quick copy of individual validation results
 - **Filter Results**: Toggle to show only failed validations
 - **Compact Interface**: Clean, easy-to-read results display
@@ -146,7 +147,8 @@ Final Spine = Base Spine (+ 4 if Cased)
 #### 3. Filter and Export
 
 - Use "Show failed only" toggle to display only files with errors
-- Click "Download Summary" to export all results as a text file
+- Click "Download Full Summary" to export all results as a text file
+- Click "Download Failed Summary" to export only failed validations
 - Click clipboard icon on individual cards to copy results
 
 #### 4. Clear and Restart

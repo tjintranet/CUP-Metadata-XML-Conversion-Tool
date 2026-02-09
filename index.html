@@ -7,11 +7,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="cup-processor-style.css" rel="stylesheet">
-
-     <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"> 
-    
 </head>
 <body class="bg-light">
     <div class="container-fluid py-4">
@@ -135,8 +130,11 @@
                                     <button class="btn btn-outline-secondary" id="clearValidatorBtn" disabled>
                                         <i class="bi bi-trash3"></i> Clear Results
                                     </button>
+                                    <button class="btn btn-outline-danger" id="downloadFailedBtn" disabled>
+                                        <i class="bi bi-exclamation-triangle"></i> Download Failed Summary
+                                    </button>
                                     <button class="btn btn-outline-primary" id="downloadValidationBtn" disabled>
-                                        <i class="bi bi-download"></i> Download Summary
+                                        <i class="bi bi-download"></i> Download Full Summary
                                     </button>
                                 </div>
 

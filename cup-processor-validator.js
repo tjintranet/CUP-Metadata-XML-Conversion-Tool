@@ -14,6 +14,7 @@ class ValidatorModule {
         this.fileInput = document.getElementById('fileInput');
         this.resultsArea = document.getElementById('resultsArea');
         this.downloadBtn = document.getElementById('downloadValidationBtn');
+        this.downloadFailedBtn = document.getElementById('downloadFailedBtn');
         this.clearBtn = document.getElementById('clearValidatorBtn');
         this.processingSpinner = document.getElementById('validatorProcessingSpinner');
         this.resultsSummary = document.getElementById('resultsSummary');
@@ -65,13 +66,21 @@ class ValidatorModule {
             this.failedOnlyToggle.checked = false;
             this.updateResultsDisplay();
             this.downloadBtn.disabled = true;
+            this.downloadFailedBtn.disabled = true;
             this.clearBtn.disabled = true;
         });
 
         this.downloadBtn.addEventListener('click', (e) => {
             e.preventDefault();
             if (this.validationResults.length > 0) {
-                this.downloadResults();
+                this.downloadResults(false);
+            }
+        });
+
+        this.downloadFailedBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (this.validationResults.length > 0) {
+                this.downloadResults(true);
             }
         });
     }
@@ -94,6 +103,7 @@ class ValidatorModule {
         
         this.updateResultsDisplay();
         this.downloadBtn.disabled = false;
+        this.downloadFailedBtn.disabled = false;
         this.clearBtn.disabled = false;
         this.processingSpinner.style.display = 'none';
     }
@@ -208,6 +218,7 @@ class ValidatorModule {
 
             this.updateResultsDisplay();
             this.downloadBtn.disabled = false;
+            this.downloadFailedBtn.disabled = false;
             this.clearBtn.disabled = false;
 
         } catch (error) {
@@ -304,27 +315,40 @@ class ValidatorModule {
             .join('');
     }
     
-    generateTextReport() {
+    generateTextReport(failedOnly = false) {
         if (this.validationResults.length === 0) return '';
         
         const timestamp = new Date().toLocaleString();
         const summary = this.calculateSummary();
         
+        // Filter to only failed validations if requested
+        const resultsToReport = failedOnly 
+            ? this.validationResults.filter(r => r.validations.some(v => !v.result))
+            : this.validationResults;
+        
+        if (failedOnly && resultsToReport.length === 0) {
+            return 'No failed validations found. All files passed validation.';
+        }
+        
         let report = '';
         
         report += '='.repeat(80) + '\n';
-        report += 'CUP XML VALIDATION ERROR REPORT\n';
+        report += failedOnly ? 'CUP XML VALIDATION - FAILED VALIDATIONS ONLY\n' : 'CUP XML VALIDATION ERROR REPORT\n';
         report += '='.repeat(80) + '\n';
         report += `Generated: ${timestamp}\n\n`;
         
         report += 'SUMMARY\n';
         report += '-'.repeat(40) + '\n';
-        report += `Total Files Processed: ${summary.total}\n\n`;
+        report += `Total Files Processed: ${summary.total}\n`;
+        if (failedOnly) {
+            report += `Files with Errors: ${resultsToReport.length}\n`;
+        }
+        report += '\n';
         
-        report += 'VALIDATION RESULTS\n';
+        report += failedOnly ? 'FAILED VALIDATIONS ONLY\n' : 'VALIDATION RESULTS\n';
         report += '='.repeat(80) + '\n\n';
         
-        this.validationResults.forEach((fileResult, index) => {
+        resultsToReport.forEach((fileResult, index) => {
             const hasErrors = fileResult.validations.some(v => !v.result);
             const status = hasErrors ? 'FAILED' : 'PASSED';
             
@@ -363,12 +387,14 @@ class ValidatorModule {
         return report;
     }
     
-    downloadResults() {
+    downloadResults(failedOnly = false) {
         if (this.validationResults.length === 0) return;
         
-        const reportContent = this.generateTextReport();
+        const reportContent = this.generateTextReport(failedOnly);
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0];
-        const filename = `cup_validation_summary_${timestamp}.txt`;
+        const filename = failedOnly 
+            ? `cup_validation_failed_${timestamp}.txt`
+            : `cup_validation_summary_${timestamp}.txt`;
         
         const blob = new Blob([reportContent], { type: 'text/plain;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
